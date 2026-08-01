@@ -86,7 +86,35 @@ HTML report generation through `batteryservice.sh report` requires PowerShell
 ./batteryservice.sh usage --group-by day -o html --output-file ./reports/usage.html
 ```
 
-## 7. Update existing deployment
+## 7. Serve report on the local network
+
+Start a live HTTP report server:
+
+```bash
+batteryservice start-serve --days 7 --port 8765
+```
+
+Open it from another machine on the same LAN:
+
+```text
+http://VM-IP:8765/
+```
+
+Find the VM IP with:
+
+```bash
+hostname -I
+```
+
+The default bind address is `0.0.0.0`, which exposes the report on the VM's
+network interfaces. Use it only on a trusted LAN/VPN, or bind to localhost for
+SSH tunnel access:
+
+```bash
+batteryservice start-serve --host 127.0.0.1 --port 8765
+```
+
+## 8. Update existing deployment
 
 After changes are pushed to GitHub:
 

@@ -66,6 +66,7 @@ cd /path/to/BatteryService
 ./batteryservice.sh report
 ./batteryservice.sh status
 ./batteryservice.sh usage --from 2026-07-31 --group-by day -o table
+./batteryservice.sh start-serve --days 7 --port 8765
 ```
 
 Install the Linux CLI globally:
@@ -107,6 +108,29 @@ Examples:
 ./batteryservice.sh usage --from 2026-07-31 --group-by hour -o table
 ./batteryservice.sh usage --group-by month -o json
 ```
+
+## Linux LAN report server
+
+Serve the live report from the Linux VM over HTTP:
+
+```bash
+batteryservice start-serve --days 7 --port 8765
+```
+
+Then open it from another machine on the same local network:
+
+```text
+http://VM-IP:8765/
+```
+
+Useful options:
+
+```text
+start-serve --host 0.0.0.0 --port 8765 --days 7 --group-by day
+```
+
+The server is intentionally simple and has no authentication. Bind it only on a
+trusted LAN/VPN, or use `--host 127.0.0.1` for SSH tunnel-only access.
 
 ## Windows estimator prototype
 
