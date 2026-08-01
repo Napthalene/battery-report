@@ -111,6 +111,21 @@ Optional cleanup of legacy scheduled-task fallback:
 .\scripts\uninstall-windows-schtasks.cmd
 ```
 
+## 9. Update existing deployment
+
+After changes are pushed to GitHub, run from Administrator PowerShell:
+
+```powershell
+cd C:\Users\sedla\Documents\BatteryService
+.\batteryservice.ps1 update
+```
+
+To pull Git changes without touching the Windows Service:
+
+```powershell
+.\batteryservice.ps1 update -SkipService
+```
+
 ## Notes
 
 - The service executable is `bin\windows\BatteryService.WindowsService.exe`.

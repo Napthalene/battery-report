@@ -68,6 +68,27 @@ cd /path/to/BatteryService
 ./batteryservice.sh usage --from 2026-07-31 --group-by day -o table
 ```
 
+Install the Linux CLI globally:
+
+```bash
+sudo ./batteryservice.sh install-cli
+batteryservice usage -o table
+```
+
+Update an installed Linux clone:
+
+```bash
+cd /path/to/BatteryService
+sudo batteryservice update
+```
+
+Update an installed Windows clone from Administrator PowerShell:
+
+```powershell
+cd C:\Users\sedla\Documents\BatteryService
+.\batteryservice.ps1 update
+```
+
 Usage command options:
 
 ```text

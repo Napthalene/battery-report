@@ -19,6 +19,9 @@ Commands:
   restart              Restart Windows Service if installed.
   install-service      Build and install the Windows Service. Requires admin.
   uninstall-service    Remove the Windows Service. Requires admin.
+  install-cli          Install batteryservice command for current Windows user.
+  uninstall-cli        Remove current-user batteryservice command.
+  update               Pull latest Git changes and refresh service/CLI.
   install-task         Install legacy SYSTEM scheduled task. Requires admin.
   install-watchdog     Install legacy scheduled-task watchdog. Requires admin.
   restart-task         Restart legacy scheduled task.
@@ -90,6 +93,9 @@ switch ($Command.ToLowerInvariant()) {
     }
     "install-service" { Invoke-Script -Path "scripts\install-windows-service.ps1" -ExtraArguments $Arguments }
     "uninstall-service" { Invoke-Script -Path "scripts\uninstall-windows-service.ps1" -ExtraArguments $Arguments }
+    "install-cli" { Invoke-Script -Path "scripts\install-windows-cli.ps1" -ExtraArguments $Arguments }
+    "uninstall-cli" { Invoke-Script -Path "scripts\uninstall-windows-cli.ps1" -ExtraArguments $Arguments }
+    "update" { Invoke-Script -Path "scripts\update-windows.ps1" -ExtraArguments $Arguments }
     "install-task" { Invoke-CmdScript "scripts\install-windows-schtasks-system.cmd" }
     "install-watchdog" { Invoke-CmdScript "scripts\install-windows-schtasks-watchdog-system.cmd" }
     "restart-task" { Invoke-CmdScript "scripts\restart-windows-schtasks.cmd" }

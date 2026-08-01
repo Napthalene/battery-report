@@ -23,6 +23,9 @@ Commands:
   restart              Restart systemd service.
   install-service      Install Linux systemd service. Requires sudo/root.
   uninstall-service    Remove Linux systemd service. Requires sudo/root.
+  install-cli          Install batteryservice command to /usr/local/bin. Requires sudo/root.
+  uninstall-cli        Remove batteryservice command from /usr/local/bin. Requires sudo/root.
+  update               Pull latest Git changes and refresh service/CLI.
   report               Generate HTML report from Linux CSV. Example: report -Days 7
   tail                 Tail latest Linux minute CSV rows.
   logs                 Show recent systemd journal logs.
@@ -63,6 +66,15 @@ case "$command_name" in
     ;;
   uninstall-service)
     bash ./scripts/uninstall-linux-systemd.sh "$@"
+    ;;
+  install-cli)
+    bash ./scripts/install-linux-cli.sh "$@"
+    ;;
+  uninstall-cli)
+    bash ./scripts/uninstall-linux-cli.sh "$@"
+    ;;
+  update)
+    bash ./scripts/update-linux.sh "$@"
     ;;
   report)
     if command -v pwsh >/dev/null 2>&1; then

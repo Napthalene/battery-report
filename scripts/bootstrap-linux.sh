@@ -76,6 +76,7 @@ install_service() {
   fi
 
   bash "$project_root/scripts/install-linux-systemd.sh"
+  bash "$project_root/scripts/install-linux-cli.sh"
 }
 
 command_name="${1:---help}"

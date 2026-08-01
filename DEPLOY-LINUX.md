@@ -50,6 +50,7 @@ Equivalent direct command:
 
 ```bash
 sudo bash ./scripts/install-linux-systemd.sh
+sudo bash ./scripts/install-linux-cli.sh
 ```
 
 ## 5. Operate service
@@ -70,11 +71,35 @@ Table output works with Python only:
 ./batteryservice.sh usage --group-by month -o json
 ```
 
+After installing the CLI, use it from anywhere:
+
+```bash
+batteryservice usage --from 2026-07-31 --group-by day -o table
+batteryservice status
+batteryservice logs
+```
+
 HTML report generation through `batteryservice.sh report` requires PowerShell
 (`pwsh`) on Linux. If you do not want that dependency, use:
 
 ```bash
 ./batteryservice.sh usage --group-by day -o html --output-file ./reports/usage.html
+```
+
+## 7. Update existing deployment
+
+After changes are pushed to GitHub:
+
+```bash
+cd /path/to/BatteryService
+sudo batteryservice update
+```
+
+If the global command is not installed yet:
+
+```bash
+cd /path/to/BatteryService
+sudo bash ./scripts/update-linux.sh
 ```
 
 ## Notes
