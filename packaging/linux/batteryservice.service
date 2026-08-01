@@ -1,0 +1,13 @@
+[Unit]
+Description=BatteryService Power Estimator
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROJECT_ROOT__
+ExecStart=/usr/bin/env python3 __PROJECT_ROOT__/src/linux/batteryservice_linux.py --config __PROJECT_ROOT__/config/power-estimator.linux.json
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

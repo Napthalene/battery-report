@@ -1,0 +1,14 @@
+probe-*.json
+*.db
+*.sqlite
+*.sqlite3
+logs/
+reports/
+bin/
+obj/
+tools/LibreHardwareMonitor/
+tools/*.zip
+__pycache__/
+*.pyc
+.venv/
+.env

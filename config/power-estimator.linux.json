@@ -1,0 +1,10 @@
+{
+  "sampleIntervalSeconds": 5,
+  "minuteOutputPath": "logs/power-minute-linux.csv",
+  "platformBaselineWatts": 7.0,
+  "cpuIdleWatts": 2.5,
+  "cpuTdpWatts": 45.0,
+  "cpuCurveExponent": 1.35,
+  "batteryFullChargeCapacityWh": 36.13,
+  "batteryDesignCapacityWh": 52.5
+}
