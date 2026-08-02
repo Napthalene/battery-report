@@ -127,7 +127,7 @@ http://VM-IP:8765/
 Useful options:
 
 ```text
-start-serve --host 0.0.0.0 --port 8765 --days 7 --group-by day
+start-serve --host 0.0.0.0 --port 8765 --days 7 --recent-hours 24
 ```
 
 The server is intentionally simple and has no authentication. Bind it only on a
@@ -150,7 +150,7 @@ http://WINDOWS-IP:8765/
 Useful options:
 
 ```text
-start-serve --host 0.0.0.0 --port 8765 --days 7 --group-by day
+start-serve --host 0.0.0.0 --port 8765 --days 7 --recent-hours 24
 ```
 
 Windows Defender Firewall may ask whether Python can accept private-network

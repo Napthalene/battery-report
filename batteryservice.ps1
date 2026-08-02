@@ -27,7 +27,7 @@ Commands:
   restart-task         Restart legacy scheduled task.
   report               Generate HTML report. Example: report -Days 7
   open-report          Generate and open HTML report. Example: open-report -Days 7
-  start-serve          Serve live HTML report on LAN. Example: start-serve --port 8765 --days 7
+  start-serve          Serve live HTML report on LAN. Example: start-serve --port 8765 --days 7 --recent-hours 24
   tail                 Tail latest minute CSV rows.
   logs                 Tail runner/service logs.
   usage                Show usage summary. Example: usage --from 2026-07-31 --group-by day -o table

@@ -37,7 +37,7 @@ Commands:
   uninstall-cli        Remove batteryservice command from /usr/local/bin. Requires sudo/root.
   update               Pull latest Git changes and refresh service/CLI.
   report               Generate HTML report from Linux CSV. Example: report -Days 7
-  start-serve          Serve live report on LAN. Example: start-serve --port 8765 --days 7
+  start-serve          Serve live report on LAN. Example: start-serve --port 8765 --days 7 --recent-hours 24
   tail                 Tail latest Linux minute CSV rows.
   logs                 Show recent systemd journal logs.
   usage                Show usage summary. Example: usage --from 2026-07-31 --group-by day -o table
