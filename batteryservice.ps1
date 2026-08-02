@@ -12,8 +12,7 @@ Usage:
 
 Commands:
   help                 Show this help.
-  --cost <price>       Set electricity price. Example: --cost "0.4 EUR/kWh"
-  cost [price]         Show or set electricity price per kWh.
+  cost [price]         Show or set cost of 1 kWh. Example: cost 0.4
   status               Show Windows Service status and recent logs.
   sample               Record one immediate sample.
   start                Start Windows Service if installed.
@@ -86,15 +85,15 @@ switch ($Command.ToLowerInvariant()) {
     "help" { Show-Help }
     "-h" { Show-Help }
     "--help" { Show-Help }
-    "--cost" {
-        if ($Arguments.Count -lt 1) {
-            throw "Usage: .\batteryservice.ps1 --cost `"0.4 EUR/kWh`""
-        }
-        python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows --cost $Arguments[0]
-    }
     "cost" {
         if ($Arguments.Count -gt 0) {
-            python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows --cost $Arguments[0]
+            $firstArgument = ($Arguments -join "")
+            if ($firstArgument -eq "-" -or $firstArgument.ToLowerInvariant().Contains("help")) {
+                Write-Host ("Cost of 1kW/h in " + [char] 0x20AC)
+            }
+            else {
+                python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows --cost $firstArgument
+            }
         }
         else {
             python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows

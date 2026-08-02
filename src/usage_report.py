@@ -3,7 +3,6 @@ import argparse
 import csv
 import json
 import math
-import re
 import sys
 from collections import OrderedDict
 from datetime import datetime, time, timezone
@@ -35,13 +34,6 @@ def to_float(value):
         return float(text.replace(",", "."))
     except ValueError:
         return 0.0
-
-
-def parse_price(value):
-    match = re.search(r"[-+]?\d+(?:[.,]\d+)?", value or "")
-    if not match:
-        return 0.0
-    return to_float(match.group(0))
 
 
 def parse_timestamp(row):
@@ -300,7 +292,6 @@ def main():
     parser.add_argument("--group-by", choices=["raw", "hour", "day", "week", "month", "year"], default="day")
     parser.add_argument("-o", "--output", choices=["table", "json", "csv", "html"], default="table")
     parser.add_argument("--platform", choices=["windows", "linux"], default="windows")
-    parser.add_argument("--cost", help="Override electricity price per kWh for this usage query")
     parser.add_argument("--input")
     parser.add_argument("--output-file")
     args = parser.parse_args()
@@ -309,8 +300,7 @@ def main():
     from_dt = parse_datetime(args.from_date)
     to_dt = parse_datetime(args.to_date, end_of_day=True)
     config_price, currency = read_cost_config(args.platform)
-    price = parse_price(args.cost) if args.cost is not None else config_price
-    aggregated, _gaps = aggregate(rows, args.group_by, from_dt, to_dt, price)
+    aggregated, _gaps = aggregate(rows, args.group_by, from_dt, to_dt, config_price)
     if args.output == "table":
         print_table(aggregated, currency)
     elif args.output == "json":

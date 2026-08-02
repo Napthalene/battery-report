@@ -54,7 +54,7 @@ cd C:\Users\sedla\Documents\BatteryService
 .\batteryservice.ps1 report -Days 7
 .\batteryservice.ps1 open-report -Days 30
 .\batteryservice.ps1 status
-.\batteryservice.ps1 --cost "0.4€/kwh"
+.\batteryservice.ps1 cost 0.4
 .\batteryservice.ps1 usage --from 2026-07-31 --group-by day -o table
 .\batteryservice.ps1 start-serve --days 7 --port 8765
 ```
@@ -67,7 +67,7 @@ cd /path/to/BatteryService
 ./batteryservice.sh sample
 ./batteryservice.sh report
 ./batteryservice.sh status
-./batteryservice.sh --cost "0.4€/kwh"
+./batteryservice.sh cost 0.4
 ./batteryservice.sh usage --from 2026-07-31 --group-by day -o table
 ./batteryservice.sh start-serve --days 7 --port 8765
 ```
@@ -102,13 +102,15 @@ usage --from yyyy-mm-dd --to yyyy-mm-dd --group-by raw|hour|day|week|month|year 
 Set the electricity price used by reports and usage summaries:
 
 ```powershell
-.\batteryservice.ps1 --cost "0.4€/kwh"
+.\batteryservice.ps1 cost 0.4
 .\batteryservice.ps1 cost
+.\batteryservice.ps1 cost --help
 ```
 
 ```bash
-batteryservice --cost "0.4€/kwh"
+batteryservice cost 0.4
 batteryservice cost
+batteryservice cost --help
 ```
 
 Examples:

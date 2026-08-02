@@ -26,8 +26,7 @@ Usage:
 
 Commands:
   help                 Show this help.
-  --cost <price>       Set electricity price. Example: --cost "0.4€/kwh"
-  cost [price]         Show or set electricity price per kWh.
+  cost [price]         Show or set cost of 1 kWh. Example: cost 0.4
   status               Show systemd service status.
   sample               Record one immediate Linux sample.
   start                Start systemd service.
@@ -58,16 +57,16 @@ case "$command_name" in
   help|-h|--help)
     show_help
     ;;
-  --cost|—cost|–cost)
-    if [[ $# -lt 1 ]]; then
-      echo 'Usage: batteryservice --cost "0.4€/kwh"' >&2
-      exit 1
-    fi
-    python3 ./src/config_tool.py --platform linux --cost "$1"
-    ;;
   cost)
     if [[ $# -gt 0 ]]; then
-      python3 ./src/config_tool.py --platform linux --cost "$1"
+      case "$1" in
+        -h|--help|help|—help|–help)
+          echo 'Cost of 1kW/h in €'
+          ;;
+        *)
+          python3 ./src/config_tool.py --platform linux --cost "$1"
+          ;;
+      esac
     else
       python3 ./src/config_tool.py --platform linux
     fi

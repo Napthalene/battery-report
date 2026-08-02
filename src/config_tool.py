@@ -44,7 +44,7 @@ def write_config(path, config):
 def main():
     parser = argparse.ArgumentParser(description="BatteryService config helper")
     parser.add_argument("--platform", choices=["windows", "linux"], required=True)
-    parser.add_argument("--cost", help="Electricity price per kWh, e.g. 0.4 or 0.4 EUR/kWh")
+    parser.add_argument("--cost", help="Cost of 1 kWh in EUR, e.g. 0.4")
     args = parser.parse_args()
 
     path = config_path(args.platform)
