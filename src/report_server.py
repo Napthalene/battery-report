@@ -121,6 +121,7 @@ def build_report(query, platform, default_days, default_recent_hours):
     to_dt = datetime.now()
     from_dt = to_dt - timedelta(days=days) if days > 0 else None
     files = usage_report.discover_files(platform, first(query, "input"))
+    price_per_kwh, currency = usage_report.read_cost_config(platform)
     raw_rows = usage_report.read_rows(files)
     points = []
     for row in raw_rows:
@@ -148,6 +149,9 @@ def build_report(query, platform, default_days, default_recent_hours):
             "systemWh": 0,
             "chargingWh": 0,
             "totalKwh": 0,
+            "cost": 0,
+            "electricityPricePerKwh": price_per_kwh,
+            "electricityCurrency": currency,
             "averageWatts": 0,
             "averageSystemWatts": 0,
             "averageChargingWatts": 0,
@@ -191,6 +195,9 @@ def build_report(query, platform, default_days, default_recent_hours):
         "systemWh": round_value(system_wh, 6),
         "chargingWh": round_value(charging_wh, 6),
         "totalKwh": round_value(total_wh / 1000.0, 6),
+        "cost": round_value((total_wh / 1000.0) * price_per_kwh, 6),
+        "electricityPricePerKwh": price_per_kwh,
+        "electricityCurrency": currency,
         "averageWatts": round_value(avg([point["totalWatts"] for point in points]), 3),
         "averageSystemWatts": round_value(avg([point["systemWatts"] for point in points]), 3),
         "averageChargingWatts": round_value(avg([point["chargingWatts"] for point in points]), 3),
@@ -293,6 +300,7 @@ def render_html(report):
     <div class="card"><div class="label">Total Energy</div><div class="value" id="totalEnergy"></div></div>
     <div class="card"><div class="label">System Energy</div><div class="value" id="systemEnergy"></div></div>
     <div class="card"><div class="label">Charging Energy</div><div class="value" id="chargingEnergy"></div></div>
+    <div class="card"><div class="label">Estimated Cost</div><div class="value" id="energyCost"></div></div>
     <div class="card"><div class="label">Avg Total Power</div><div class="value" id="averagePower"></div></div>
     <div class="card"><div class="label">Peak Power</div><div class="value" id="peakPower"></div></div>
     <div class="card"><div class="label">Battery</div><div class="value" id="batteryState"></div></div>
@@ -364,6 +372,7 @@ document.getElementById("range").textContent = (report.startLocal || "no data") 
 document.getElementById("totalEnergy").innerHTML = report.totalWh.toFixed(3) + '<span class="unit">Wh</span>';
 document.getElementById("systemEnergy").innerHTML = report.systemWh.toFixed(3) + '<span class="unit">Wh</span>';
 document.getElementById("chargingEnergy").innerHTML = report.chargingWh.toFixed(3) + '<span class="unit">Wh</span>';
+document.getElementById("energyCost").innerHTML = report.cost.toFixed(4) + '<span class="unit">' + report.electricityCurrency + ' @ ' + report.electricityPricePerKwh + '/kWh</span>';
 document.getElementById("averagePower").innerHTML = report.averageWatts.toFixed(2) + '<span class="unit">W</span>';
 document.getElementById("peakPower").innerHTML = report.peakWatts.toFixed(2) + '<span class="unit">W</span>';
 document.getElementById("batteryState").innerHTML = (report.latestBatteryPercent || 0).toFixed(0) + '<span class="unit">% ' + (report.latestBatteryStatus || "unknown") + '</span>';

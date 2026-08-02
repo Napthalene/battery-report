@@ -12,6 +12,8 @@ Usage:
 
 Commands:
   help                 Show this help.
+  --cost <price>       Set electricity price. Example: --cost "0.4 EUR/kWh"
+  cost [price]         Show or set electricity price per kWh.
   status               Show Windows Service status and recent logs.
   sample               Record one immediate sample.
   start                Start Windows Service if installed.
@@ -84,6 +86,20 @@ switch ($Command.ToLowerInvariant()) {
     "help" { Show-Help }
     "-h" { Show-Help }
     "--help" { Show-Help }
+    "--cost" {
+        if ($Arguments.Count -lt 1) {
+            throw "Usage: .\batteryservice.ps1 --cost `"0.4 EUR/kWh`""
+        }
+        python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows --cost $Arguments[0]
+    }
+    "cost" {
+        if ($Arguments.Count -gt 0) {
+            python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows --cost $Arguments[0]
+        }
+        else {
+            python (Join-Path $ProjectRoot "src\config_tool.py") --platform windows
+        }
+    }
     "status" { Invoke-Script -Path "scripts\get-windows-service-status.ps1" -ExtraArguments $Arguments }
     "sample" { & (Join-Path $ProjectRoot "scripts\estimate-power-windows.ps1") -Once }
     "start" { Start-Service -Name "BatteryServicePowerEstimator" }

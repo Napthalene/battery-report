@@ -26,6 +26,8 @@ Usage:
 
 Commands:
   help                 Show this help.
+  --cost <price>       Set electricity price. Example: --cost "0.4€/kwh"
+  cost [price]         Show or set electricity price per kWh.
   status               Show systemd service status.
   sample               Record one immediate Linux sample.
   start                Start systemd service.
@@ -55,6 +57,20 @@ cd "$project_root"
 case "$command_name" in
   help|-h|--help)
     show_help
+    ;;
+  --cost|—cost|–cost)
+    if [[ $# -lt 1 ]]; then
+      echo 'Usage: batteryservice --cost "0.4€/kwh"' >&2
+      exit 1
+    fi
+    python3 ./src/config_tool.py --platform linux --cost "$1"
+    ;;
+  cost)
+    if [[ $# -gt 0 ]]; then
+      python3 ./src/config_tool.py --platform linux --cost "$1"
+    else
+      python3 ./src/config_tool.py --platform linux
+    fi
     ;;
   status)
     systemctl status batteryservice --no-pager
@@ -89,9 +105,9 @@ case "$command_name" in
     ;;
   report)
     if command -v pwsh >/dev/null 2>&1; then
-      pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/export-html-report.ps1 -InputPath ./logs/power-minute-linux.csv "$@"
+      pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/export-html-report.ps1 -InputPath ./logs/power-minute-linux.csv -ConfigPath ./config/power-estimator.linux.json "$@"
     elif command -v powershell >/dev/null 2>&1; then
-      powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/export-html-report.ps1 -InputPath ./logs/power-minute-linux.csv "$@"
+      powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/export-html-report.ps1 -InputPath ./logs/power-minute-linux.csv -ConfigPath ./config/power-estimator.linux.json "$@"
     else
       echo "PowerShell is required for HTML report generation." >&2
       exit 1

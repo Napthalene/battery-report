@@ -65,9 +65,38 @@ function Read-BatteryCapacityWh {
     return 0.0
 }
 
+function Read-ElectricityConfig {
+    param([string] $Path)
+
+    $absoluteConfigPath = Convert-ToAbsolutePath -Path $Path
+    $result = [pscustomobject] @{
+        pricePerKwh = 0.0
+        currency = [string] [char] 0x20AC
+    }
+
+    if (-not (Test-Path -LiteralPath $absoluteConfigPath)) {
+        return $result
+    }
+
+    try {
+        $config = Get-Content -Raw -LiteralPath $absoluteConfigPath | ConvertFrom-Json
+        if ($null -ne $config.electricityPricePerKwh) {
+            $result.pricePerKwh = [double] $config.electricityPricePerKwh
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string] $config.electricityCurrency)) {
+            $result.currency = [string] $config.electricityCurrency
+        }
+    }
+    catch {
+    }
+
+    return $result
+}
+
 $absoluteInputPath = Convert-ToAbsolutePath -Path $InputPath
 $absoluteOutputPath = Convert-ToAbsolutePath -Path $OutputPath
 $batteryCapacityWh = Read-BatteryCapacityWh -Path $ConfigPath
+$electricityConfig = Read-ElectricityConfig -Path $ConfigPath
 
 if (-not (Test-Path -LiteralPath $absoluteInputPath)) {
     throw "Input CSV was not found: $absoluteInputPath"
@@ -206,6 +235,8 @@ for ($index = 1; $index -lt $points.Count; $index++) {
 }
 
 $totalWh = ($points | Measure-Object -Property totalEnergyWh -Sum).Sum
+$totalKwh = $totalWh / 1000.0
+$estimatedCost = $totalKwh * $electricityConfig.pricePerKwh
 $systemWh = ($points | Measure-Object -Property systemEnergyWh -Sum).Sum
 $chargingWh = ($points | Measure-Object -Property chargingEnergyWh -Sum).Sum
 $averageWatts = ($points | Measure-Object -Property totalWatts -Average).Average
@@ -284,7 +315,10 @@ $reportModel = [pscustomobject] @{
     totalWh = [Math]::Round($totalWh, 6)
     systemWh = [Math]::Round($systemWh, 6)
     chargingWh = [Math]::Round($chargingWh, 6)
-    totalKwh = [Math]::Round($totalWh / 1000.0, 6)
+    totalKwh = [Math]::Round($totalKwh, 6)
+    cost = [Math]::Round($estimatedCost, 6)
+    electricityPricePerKwh = [Math]::Round($electricityConfig.pricePerKwh, 6)
+    electricityCurrency = $electricityConfig.currency
     averageWatts = [Math]::Round($averageWatts, 3)
     averageSystemWatts = [Math]::Round($averageSystemWatts, 3)
     averageChargingWatts = [Math]::Round($averageChargingWatts, 3)
@@ -377,6 +411,7 @@ $html = @"
     <div class="card"><div class="label">Total Energy</div><div class="value" id="totalEnergy"></div></div>
     <div class="card"><div class="label">System Energy</div><div class="value" id="systemEnergy"></div></div>
     <div class="card"><div class="label">Charging Energy</div><div class="value" id="chargingEnergy"></div></div>
+    <div class="card"><div class="label">Estimated Cost</div><div class="value" id="energyCost"></div></div>
     <div class="card"><div class="label">Avg Total Power</div><div class="value" id="averagePower"></div></div>
     <div class="card"><div class="label">Peak Power</div><div class="value" id="peakPower"></div></div>
     <div class="card"><div class="label">Battery</div><div class="value" id="batteryState"></div></div>
@@ -448,6 +483,7 @@ document.getElementById("range").textContent = report.startLocal + " → " + rep
 document.getElementById("totalEnergy").innerHTML = report.totalWh.toFixed(3) + '<span class="unit">Wh</span>';
 document.getElementById("systemEnergy").innerHTML = report.systemWh.toFixed(3) + '<span class="unit">Wh</span>';
 document.getElementById("chargingEnergy").innerHTML = report.chargingWh.toFixed(3) + '<span class="unit">Wh</span>';
+document.getElementById("energyCost").innerHTML = report.cost.toFixed(4) + '<span class="unit">' + report.electricityCurrency + ' @ ' + report.electricityPricePerKwh + '/kWh</span>';
 document.getElementById("averagePower").innerHTML = report.averageWatts.toFixed(2) + '<span class="unit">W</span>';
 document.getElementById("peakPower").innerHTML = report.peakWatts.toFixed(2) + '<span class="unit">W</span>';
 document.getElementById("batteryState").innerHTML = (report.latestBatteryPercent || 0).toFixed(0) + '<span class="unit">% ' + (report.latestBatteryStatus || "unknown") + '</span>';

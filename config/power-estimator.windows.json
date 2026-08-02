@@ -5,6 +5,8 @@
   "cpuIdleWatts": 2.5,
   "cpuTdpWatts": 45.0,
   "cpuCurveExponent": 1.35,
+  "electricityPricePerKwh": 0.4,
+  "electricityCurrency": "\u20ac",
   "batteryFullChargeCapacityWh": 36.13,
   "batteryDesignCapacityWh": 52.5,
   "includeNvidiaGpu": true,

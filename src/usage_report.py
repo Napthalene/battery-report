@@ -3,6 +3,7 @@ import argparse
 import csv
 import json
 import math
+import re
 import sys
 from collections import OrderedDict
 from datetime import datetime, time, timezone
@@ -36,6 +37,13 @@ def to_float(value):
         return 0.0
 
 
+def parse_price(value):
+    match = re.search(r"[-+]?\d+(?:[.,]\d+)?", value or "")
+    if not match:
+        return 0.0
+    return to_float(match.group(0))
+
+
 def parse_timestamp(row):
     text = row.get("timestamp_utc", "")
     if not text:
@@ -58,6 +66,25 @@ def discover_files(platform, explicit_input):
             if path.is_file() and (path.name == base.name or path.name.startswith(base.name + ".legacy-"))
         )
     return files
+
+
+def config_path(platform):
+    name = "power-estimator.linux.json" if platform == "linux" else "power-estimator.windows.json"
+    return project_root() / "config" / name
+
+
+def read_cost_config(platform):
+    path = config_path(platform)
+    if not path.exists():
+        return 0.0, "\u20ac"
+    try:
+        config = json.loads(path.read_text(encoding="utf-8-sig"))
+        currency = config.get("electricityCurrency", "\u20ac")
+        if currency == "â‚¬":
+            currency = "\u20ac"
+        return to_float(config.get("electricityPricePerKwh")), currency
+    except (OSError, json.JSONDecodeError):
+        return 0.0, "\u20ac"
 
 
 def read_rows(files):
@@ -118,7 +145,7 @@ def row_values(row):
     }
 
 
-def aggregate(rows, group_by, from_dt, to_dt):
+def aggregate(rows, group_by, from_dt, to_dt, price_per_kwh=0.0):
     groups = OrderedDict()
     gaps = []
     previous_timestamp = None
@@ -172,6 +199,7 @@ def aggregate(rows, group_by, from_dt, to_dt):
             "rows": group["rows"],
             "total_wh": round(group["total_wh"], 6),
             "total_kwh": round(group["total_wh"] / 1000.0, 6),
+            "cost": round((group["total_wh"] / 1000.0) * price_per_kwh, 6),
             "system_wh": round(group["system_wh"], 6),
             "charging_wh": round(group["charging_wh"], 6),
             "avg_total_w": round(avg(group["total_watts_values"]), 3),
@@ -191,10 +219,11 @@ def avg(values):
     return sum(values) / len(values) if values else 0.0
 
 
-def print_table(rows):
+def print_table(rows, currency="€"):
     columns = [
         ("period", "Period"),
         ("total_wh", "Total Wh"),
+        ("cost", f"Cost {currency}"),
         ("system_wh", "System Wh"),
         ("charging_wh", "Charge Wh"),
         ("avg_total_w", "Avg W"),
@@ -246,7 +275,7 @@ table{{border-collapse:collapse;width:100%;margin-top:24px}}td,th{{border-bottom
 .bar{{height:18px;background:#34d399;border-radius:4px}}.charge{{background:#fb923c}}
 </style></head><body>
 <h1>BatteryService Usage</h1>
-<table><thead><tr><th>Period</th><th>Total Wh</th><th>System Wh</th><th>Charge Wh</th><th>Avg W</th><th>Rows</th></tr></thead><tbody>
+<table><thead><tr><th>Period</th><th>Total Wh</th><th>Cost</th><th>System Wh</th><th>Charge Wh</th><th>Avg W</th><th>Rows</th></tr></thead><tbody>
 """
     max_wh = max(total) if total else 1
     for row in rows:
@@ -254,6 +283,7 @@ table{{border-collapse:collapse;width:100%;margin-top:24px}}td,th{{border-bottom
         charge_width = 100 * row["charging_wh"] / max_wh if max_wh else 0
         html += (
             f"<tr><td>{row['period']}</td><td>{row['total_wh']:.3f}</td>"
+            f"<td>{row['cost']:.4f}</td>"
             f"<td>{row['system_wh']:.3f}<div class='bar' style='width:{system_width:.1f}%'></div></td>"
             f"<td>{row['charging_wh']:.3f}<div class='bar charge' style='width:{charge_width:.1f}%'></div></td>"
             f"<td>{row['avg_total_w']:.2f}</td><td>{row['rows']}</td></tr>"
@@ -270,6 +300,7 @@ def main():
     parser.add_argument("--group-by", choices=["raw", "hour", "day", "week", "month", "year"], default="day")
     parser.add_argument("-o", "--output", choices=["table", "json", "csv", "html"], default="table")
     parser.add_argument("--platform", choices=["windows", "linux"], default="windows")
+    parser.add_argument("--cost", help="Override electricity price per kWh for this usage query")
     parser.add_argument("--input")
     parser.add_argument("--output-file")
     args = parser.parse_args()
@@ -277,9 +308,11 @@ def main():
     rows = read_rows(files)
     from_dt = parse_datetime(args.from_date)
     to_dt = parse_datetime(args.to_date, end_of_day=True)
-    aggregated, _gaps = aggregate(rows, args.group_by, from_dt, to_dt)
+    config_price, currency = read_cost_config(args.platform)
+    price = parse_price(args.cost) if args.cost is not None else config_price
+    aggregated, _gaps = aggregate(rows, args.group_by, from_dt, to_dt, price)
     if args.output == "table":
-        print_table(aggregated)
+        print_table(aggregated, currency)
     elif args.output == "json":
         write_json(aggregated, args.output_file)
     elif args.output == "csv":
