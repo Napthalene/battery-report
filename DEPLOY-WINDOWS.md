@@ -97,7 +97,38 @@ Using the CLI:
 .\batteryservice.ps1 usage --group-by month -o html --output-file .\reports\monthly.html
 ```
 
-## 8. Uninstall
+## 8. Serve report on the local network
+
+Start a live HTTP report server:
+
+```powershell
+.\batteryservice.ps1 start-serve --days 7 --port 8765
+```
+
+Open it from another machine on the same LAN:
+
+```text
+http://WINDOWS-IP:8765/
+```
+
+Find the Windows IP with:
+
+```powershell
+ipconfig
+```
+
+The default bind address is `0.0.0.0`, which exposes the report on the machine's
+network interfaces. Use it only on a trusted LAN/VPN, or bind to localhost for
+tunnel-only access:
+
+```powershell
+.\batteryservice.ps1 start-serve --host 127.0.0.1 --port 8765
+```
+
+Windows Defender Firewall may ask whether Python can accept private-network
+connections. Allow it only for trusted private networks.
+
+## 9. Uninstall
 
 Run from **Administrator PowerShell**:
 
@@ -111,7 +142,7 @@ Optional cleanup of legacy scheduled-task fallback:
 .\scripts\uninstall-windows-schtasks.cmd
 ```
 
-## 9. Update existing deployment
+## 10. Update existing deployment
 
 After changes are pushed to GitHub, run from Administrator PowerShell:
 

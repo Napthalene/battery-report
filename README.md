@@ -55,6 +55,7 @@ cd C:\Users\sedla\Documents\BatteryService
 .\batteryservice.ps1 open-report -Days 30
 .\batteryservice.ps1 status
 .\batteryservice.ps1 usage --from 2026-07-31 --group-by day -o table
+.\batteryservice.ps1 start-serve --days 7 --port 8765
 ```
 
 Linux:
@@ -131,6 +132,29 @@ start-serve --host 0.0.0.0 --port 8765 --days 7 --group-by day
 
 The server is intentionally simple and has no authentication. Bind it only on a
 trusted LAN/VPN, or use `--host 127.0.0.1` for SSH tunnel-only access.
+
+## Windows LAN report server
+
+Serve the live Windows report over HTTP:
+
+```powershell
+.\batteryservice.ps1 start-serve --days 7 --port 8765
+```
+
+Then open it from another machine on the same local network:
+
+```text
+http://WINDOWS-IP:8765/
+```
+
+Useful options:
+
+```text
+start-serve --host 0.0.0.0 --port 8765 --days 7 --group-by day
+```
+
+Windows Defender Firewall may ask whether Python can accept private-network
+connections. Allow it only for trusted private networks.
 
 ## Windows estimator prototype
 

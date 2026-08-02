@@ -27,6 +27,7 @@ Commands:
   restart-task         Restart legacy scheduled task.
   report               Generate HTML report. Example: report -Days 7
   open-report          Generate and open HTML report. Example: open-report -Days 7
+  start-serve          Serve live HTML report on LAN. Example: start-serve --port 8765 --days 7
   tail                 Tail latest minute CSV rows.
   logs                 Tail runner/service logs.
   usage                Show usage summary. Example: usage --from 2026-07-31 --group-by day -o table
@@ -107,6 +108,10 @@ switch ($Command.ToLowerInvariant()) {
         $filteredArguments = @($Arguments | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
         & (Join-Path $ProjectRoot "scripts\export-html-report.ps1") @filteredArguments
         Start-Process (Join-Path $ProjectRoot "reports\power-report.html")
+    }
+    "start-serve" {
+        $filteredArguments = @($Arguments | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        python (Join-Path $ProjectRoot "src\report_server.py") --platform windows @filteredArguments
     }
     "tail" { Tail-IfExists "logs\power-minute.csv" 10 }
     "logs" {
